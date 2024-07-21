@@ -1,0 +1,73 @@
+server:
+  port: 8080
+  reactive:
+    session:
+      cookie:
+        name: PORTAL
+spring:
+  #  r2dbc:
+  #    url: r2dbc:postgresql://localhost:15432/keycloak
+  #    username: keycloak
+  #    password: password
+  #    name: keycloak
+  #    properties:
+  #      schema: oidc
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save
+      namespace: gateway:session
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+
+  application:
+    name: backend-for-frontend
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8090/realms/BFF
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: backend-for-frontend-client
+            client-secret: UqUMZe9Zk4YAL4xUTpWOQgdz67OCNdYi
+            scope: openid
+#            redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/user"
+
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+        - RemoveRequestHeader=Cookie
+      routes:
+        - id: httpbin
+          uri: https://httpbin.org
+          predicates:
+            - Path=/httpbin/**
+          filters:
+            - StripPrefix=1
+        - id: flights-service
+          uri: http://localhost:8081/hello
+          predicates:
+            - Path=/hello/**
+        - id: hotels-service
+          uri: http://127.0.0.1:8082/hotels
+          predicates:
+            - Path=/hotels/**
+  jpa:
+    show-sql: true
+logging:
+  level:
+    org:
+      springframework:
+        cloud.gateway: DEBUG
+        http.server.reactive: DEBUG
+        web.reactive: DEBUG
+        security: DEBUG
+        r2dbc: DEBUG
+    web: debug
