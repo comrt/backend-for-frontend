@@ -21,7 +21,7 @@ services:
     ports:
       - '6379:6379'
   postgres:
-    image: postgres
+    image: postgres:16
 #    volumes:
       #      - postgres_keycloak_data:/var/lib/postgresql/data
 #      - ./postgres-session/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -42,7 +42,7 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-    command: start-dev --import-realm
+    command: start-dev --import-realm --db postgres --db-url-host postgres --db-username keycloak --db-password password
       # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
     #JDBC_PARAMS: "ssl=true"
     ports:
